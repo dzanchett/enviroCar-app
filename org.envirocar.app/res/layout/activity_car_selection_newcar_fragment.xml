@@ -51,6 +51,13 @@
         </RelativeLayout>
     </LinearLayout>
 
+    <ProgressBar
+        android:id="@+id/progressBar"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:progress="0" />
+
     <androidx.core.widget.NestedScrollView
         android:id="@+id/activity_car_selection_newcar_content_view"
         android:layout_width="match_parent"
@@ -95,31 +102,26 @@
                 android:fontFamily="@font/roboto_light1"
                 android:layout_marginVertical="8dp"/>
 
-            <ProgressBar
-                android:id="@+id/progressBar"
-                style="?android:attr/progressBarStyleHorizontal"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:progress="0" />
-
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/activity_car_selection_newcar_layout_manufacturer"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/car_selection_manufacturer"
-                android:layout_marginVertical="8dp"
                 android:layout_marginHorizontal="16dp"
+                android:layout_marginVertical="8dp"
+                android:hint="@string/car_selection_manufacturer"
+                android:visibility="gone"
                 app:startIconDrawable="@drawable/ic_manufacturer">
 
                 <AutoCompleteTextView
                     android:id="@+id/activity_car_selection_newcar_input_manufacturer"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:paddingLeft="12dp"
                     android:imeOptions="actionNext"
                     android:maxLines="1"
-                    android:singleLine="true"/>
+                    android:paddingLeft="12dp"
+                    android:singleLine="true"
+                    android:visibility="gone" />
 
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -128,19 +130,21 @@
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/car_selection_model"
-                android:layout_marginVertical="8dp"
                 android:layout_marginHorizontal="16dp"
+                android:layout_marginVertical="8dp"
+                android:hint="@string/car_selection_model"
+                android:visibility="gone"
                 app:startIconDrawable="@drawable/ic_directions_car_black_24dp">
 
                 <AutoCompleteTextView
                     android:id="@+id/activity_car_selection_newcar_input_model"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:paddingLeft="12dp"
                     android:imeOptions="actionNext"
                     android:maxLines="1"
-                    android:singleLine="true"/>
+                    android:paddingLeft="12dp"
+                    android:singleLine="true"
+                    android:visibility="gone" />
 
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -149,20 +153,22 @@
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/car_selection_construction_year"
-                android:layout_marginVertical="8dp"
                 android:layout_marginHorizontal="16dp"
+                android:layout_marginVertical="8dp"
+                android:hint="@string/car_selection_construction_year"
+                android:visibility="gone"
                 app:startIconDrawable="@drawable/ic_date_24dp">
 
                 <AutoCompleteTextView
                     android:id="@+id/activity_car_selection_newcar_input_constructionyear"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:paddingLeft="12dp"
-                    android:inputType="number"
                     android:imeOptions="actionNext"
+                    android:inputType="number"
                     android:maxLines="1"
-                    android:singleLine="true" />
+                    android:paddingLeft="12dp"
+                    android:singleLine="true"
+                    android:visibility="gone" />
 
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -171,18 +177,20 @@
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginVertical="8dp"
                 android:hint="@string/fuel_type"
                 android:maxLines="1"
-                android:layout_marginVertical="8dp"
-                android:layout_marginHorizontal="16dp"
+                android:visibility="gone"
                 app:startIconDrawable="@drawable/ic_gas">
 
                 <AutoCompleteTextView
                     android:id="@+id/activity_car_selection_newcar_input_fueltype"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:editable="false"
                     android:inputType="text"
-                    android:editable="false" />
+                    android:visibility="gone" />
 
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -191,23 +199,29 @@
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/car_selection_engine_displacement"
-                android:layout_marginVertical="8dp"
                 android:layout_marginHorizontal="16dp"
+                android:layout_marginVertical="8dp"
+                android:hint="@string/car_selection_engine_displacement"
+                android:visibility="gone"
                 app:startIconDrawable="@drawable/ic_engine">
 
                 <AutoCompleteTextView
                     android:id="@+id/activity_car_selection_newcar_input_engine"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:paddingLeft="12dp"
-                    android:inputType="number"
                     android:imeOptions="actionDone"
+                    android:inputType="number"
                     android:maxLines="1"
-                    android:singleLine="true" />
+                    android:paddingLeft="12dp"
+                    android:singleLine="true"
+                    android:visibility="gone" />
 
             </com.google.android.material.textfield.TextInputLayout>
 
+            <include
+                layout="@layout/activity_car_selection_newcar_fragment_manufacturer"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content" />
         </LinearLayout>
     </androidx.core.widget.NestedScrollView>
 
@@ -223,7 +237,8 @@
             android:layout_marginLeft="20dip"
             android:layout_marginRight="10dip"
             android:layout_weight="1"
-            android:text="<" />
+            android:text="<"
+            android:visibility="invisible" />
 
         <Button
             android:id="@+id/button3"
