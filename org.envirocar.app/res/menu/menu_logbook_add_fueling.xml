@@ -26,5 +26,6 @@
         android:icon="@drawable/ic_done"
         android:orderInCategory="100"
         android:title="SAVE"
-        app:showAsAction="always"/>
+        android:visible="false"
+        app:showAsAction="always" />
 </menu>
