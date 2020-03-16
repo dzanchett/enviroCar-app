@@ -139,6 +139,8 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
     protected RadioGroup modelRadioGroup;
     @BindView(R.id.activity_car_selection_newcar_fragment_constuction_year_radio_group)
     protected RadioGroup constructionYearRadioGroup;
+    @BindView(R.id.activity_car_selection_newcar_fragment_fuel_type_radio_group)
+    protected RadioGroup fuelTypeRadioGroup;
 
     @Inject
     protected DAOProvider daoProvider;
@@ -157,6 +159,11 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
     private Map<Integer, String> mIdToManufacturerMap = new ConcurrentHashMap<>();
     private Map<Integer, String> mIdToModelMap = new ConcurrentHashMap<>();
     private Map<Integer, String> mIdToConstructionYear = new ConcurrentHashMap<>();
+    private Map<Integer, String> mIdToFuelType = new ConcurrentHashMap<>();
+
+    String selectedManufacturer;
+    String selectedModel;
+    String selectedConstructionYear;
 
 
     @Nullable
@@ -620,6 +627,32 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
         }
     }
 
+    private void updateFuelType(){
+        mIdToFuelType.clear();
+        fuelTypeRadioGroup.removeAllViews();
+
+        RadioButton button;
+        List<String> mFuelTypeSorted = new ArrayList<>();
+
+        for (Car other : mCars) {
+            if (other.getManufacturer().equals(selectedManufacturer)
+                && other.getModel().equals(selectedModel)
+                && other.getConstructionYear() == Integer.parseInt(selectedConstructionYear)
+                && other.getFuelType() != null) {
+                    mFuelTypeSorted.add(other.getFuelType().name());
+            }
+        }
+
+        Collections.sort(mFuelTypeSorted);
+
+        for(String fuelType : mFuelTypeSorted){
+            button = new RadioButton(getContext());
+            button.setText(fuelType.toLowerCase());
+            fuelTypeRadioGroup.addView(button);
+            mIdToFuelType.put(button.getId(), fuelType);
+        }
+    }
+
     private void updateEngineView(Pair<String, String> model) {
         if (mModelToCCM.containsKey(model)) {
             engineText.setAdapter(asSortedAdapter(getContext(), mModelToCCM.get(model)));
@@ -773,7 +806,8 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
                     viewFlipper.setDisplayedChild(1);
                     buttonPrevious.setVisibility(View.VISIBLE);
                     newCarFormProgress.setProgress(32);
-                    updateModelViews(mIdToManufacturerMap.get(checkedRadioButtonId));
+                    selectedManufacturer = mIdToManufacturerMap.get(checkedRadioButtonId);
+                    updateModelViews(selectedManufacturer);
                 }
                 break;
 
@@ -790,8 +824,28 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
                 }else{
                     viewFlipper.setDisplayedChild(2);
                     newCarFormProgress.setProgress(48);
-                    updateYearView(mIdToModelMap.get(checkedRadioButtonId));
+                    selectedModel = mIdToModelMap.get(checkedRadioButtonId);
+                    updateYearView(selectedModel);
                 }
+                break;
+
+            case 2:
+                checkedRadioButtonId = constructionYearRadioGroup.getCheckedRadioButtonId();
+
+                if(checkedRadioButtonId == -1){
+                    new AlertDialog.Builder(getContext())
+                            .setTitle("Alert!")
+                            .setMessage("You must select the construction year before advance to the next step!")
+                            .setPositiveButton(android.R.string.ok, null)
+                            .setIcon(android.R.drawable.ic_dialog_alert)
+                            .show();
+                }else{
+                    viewFlipper.setDisplayedChild(3);
+                    newCarFormProgress.setProgress(64);
+                    selectedConstructionYear = mIdToConstructionYear.get(checkedRadioButtonId);
+                    updateFuelType();
+                }
+                break;
         }
     }
 
@@ -807,6 +861,12 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
             case 2:
                 viewFlipper.setDisplayedChild(1);
                 newCarFormProgress.setProgress(32);
+                break;
+
+            case 3:
+                viewFlipper.setDisplayedChild(2);
+                newCarFormProgress.setProgress(48);
+                break;
         }
     }
 
