@@ -137,6 +137,8 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
     protected RadioGroup manufacturerRadioGroup;
     @BindView(R.id.activity_car_selection_newcar_fragment_model_radio_group)
     protected RadioGroup modelRadioGroup;
+    @BindView(R.id.activity_car_selection_newcar_fragment_constuction_year_radio_group)
+    protected RadioGroup constructionYearRadioGroup;
 
     @Inject
     protected DAOProvider daoProvider;
@@ -154,6 +156,7 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
 
     private Map<Integer, String> mIdToManufacturerMap = new ConcurrentHashMap<>();
     private Map<Integer, String> mIdToModelMap = new ConcurrentHashMap<>();
+    private Map<Integer, String> mIdToConstructionYear = new ConcurrentHashMap<>();
 
 
     @Nullable
@@ -596,8 +599,22 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
     }
 
     private void updateYearView(String model) {
+        mIdToConstructionYear.clear();
+        constructionYearRadioGroup.removeAllViews();
+
         if (mModelToYear.containsKey(model)) {
-            yearText.setAdapter(asSortedAdapter(getContext(), mModelToYear.get(model)));
+            Set mConstructionYear = mModelToYear.get(model);
+            RadioButton button;
+
+            yearText.setAdapter(asSortedAdapter(getContext(), mConstructionYear));
+            List<String> mConstructionYearSorted = new ArrayList<>(mConstructionYear);
+            Collections.sort(mConstructionYearSorted);
+            for(String constructionYear : mConstructionYearSorted){
+                button = new RadioButton(getContext());
+                button.setText(constructionYear);
+                constructionYearRadioGroup.addView(button);
+                mIdToConstructionYear.put(button.getId(), constructionYear);
+            }
         } else {
             yearText.setAdapter(null);
         }
@@ -739,9 +756,11 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
 
     @OnClick(R.id.button_next)
     public void onClickNextButton(View v) {
+        int checkedRadioButtonId;
+
         switch(viewFlipper.getDisplayedChild()){
             case 0:
-                int checkedRadioButtonId = manufacturerRadioGroup.getCheckedRadioButtonId();
+                checkedRadioButtonId = manufacturerRadioGroup.getCheckedRadioButtonId();
 
                 if(checkedRadioButtonId == -1){
                     new AlertDialog.Builder(getContext())
@@ -757,6 +776,22 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
                     updateModelViews(mIdToManufacturerMap.get(checkedRadioButtonId));
                 }
                 break;
+
+            case 1:
+                checkedRadioButtonId = modelRadioGroup.getCheckedRadioButtonId();
+
+                if(checkedRadioButtonId == -1){
+                    new AlertDialog.Builder(getContext())
+                            .setTitle("Alert!")
+                            .setMessage("You must select one model before advance to the next step!")
+                            .setPositiveButton(android.R.string.ok, null)
+                            .setIcon(android.R.drawable.ic_dialog_alert)
+                            .show();
+                }else{
+                    viewFlipper.setDisplayedChild(2);
+                    newCarFormProgress.setProgress(48);
+                    updateYearView(mIdToModelMap.get(checkedRadioButtonId));
+                }
         }
     }
 
@@ -768,6 +803,10 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
                 buttonPrevious.setVisibility(View.INVISIBLE);
                 newCarFormProgress.setProgress(16);
                 break;
+
+            case 2:
+                viewFlipper.setDisplayedChild(1);
+                newCarFormProgress.setProgress(32);
         }
     }
 
