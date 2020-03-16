@@ -242,6 +242,12 @@
                 layout="@layout/activity_car_selection_newcar_fragment_fuel_type"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content" />
+
+            <include
+                android:id="@+id/activity_car_selection_newcar_fragment_include5"
+                layout="@layout/activity_car_selection_newcar_fragment_engine_displacement"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content" />
         </ViewFlipper>
     </LinearLayout>
 
