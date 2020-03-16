@@ -19,7 +19,9 @@
 package org.envirocar.app.views.carselection;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.util.Pair;
 import android.view.LayoutInflater;
@@ -30,11 +32,13 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
+import android.widget.Button;
 import android.widget.ListAdapter;
 import android.widget.ProgressBar;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
+import android.widget.ViewFlipper;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -70,6 +74,7 @@ import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import butterknife.OnFocusChange;
 import butterknife.OnItemClick;
 import butterknife.OnTextChanged;
@@ -122,10 +127,16 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
     @BindView(R.id.activity_car_selection_newcar_input_engine)
     protected AutoCompleteTextView engineText;
 
+    @BindView(R.id.activity_car_selection_newcar_fragment_view_flipper)
+    protected ViewFlipper viewFlipper;
     @BindView(R.id.activity_car_selection_newcar_fragment_progressbar)
     protected ProgressBar newCarFormProgress;
+    @BindView(R.id.button_previous)
+    protected Button buttonPrevious;
     @BindView(R.id.activity_car_selection_newcar_fragment_manufacturer_radio_group)
     protected RadioGroup manufacturerRadioGroup;
+    @BindView(R.id.activity_car_selection_newcar_fragment_model_radio_group)
+    protected RadioGroup modelRadioGroup;
 
     @Inject
     protected DAOProvider daoProvider;
@@ -140,6 +151,9 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
     private Map<String, Set<String>> mCarToModelMap = new ConcurrentHashMap<>();
     private Map<String, Set<String>> mModelToYear = new ConcurrentHashMap<>();
     private Map<Pair<String, String>, Set<String>> mModelToCCM = new ConcurrentHashMap<>();
+
+    private Map<Integer, String> mIdToManufacturerMap = new ConcurrentHashMap<>();
+    private Map<Integer, String> mIdToModelMap = new ConcurrentHashMap<>();
 
 
     @Nullable
@@ -538,18 +552,21 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
     }
 
     private void updateManufacturerViews() {
+        mIdToManufacturerMap.clear();
+        manufacturerRadioGroup.removeAllViews();
+
         if (!mManufacturerNames.isEmpty()) {
             manufacturerText.setAdapter(asSortedAdapter(getContext(), mManufacturerNames));
+            RadioButton button;
 
             newCarFormProgress.setProgress(16);
-
-            RadioButton button;
             List<String> mManufacturerNamesSorted = new ArrayList<>(mManufacturerNames);
             Collections.sort(mManufacturerNamesSorted);
             for(String manufacturerName : mManufacturerNamesSorted) {
                 button = new RadioButton(getContext());
                 button.setText(manufacturerName);
                 manufacturerRadioGroup.addView(button);
+                mIdToManufacturerMap.put(button.getId(), manufacturerName);
             }
         } else {
             manufacturerText.setAdapter(null);
@@ -557,8 +574,22 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
     }
 
     private void updateModelViews(String manufacturer) {
+        mIdToModelMap.clear();
+        modelRadioGroup.removeAllViews();
+
         if (mCarToModelMap.containsKey(manufacturer)) {
-            modelText.setAdapter(asSortedAdapter(getContext(), mCarToModelMap.get(manufacturer)));
+            Set mModelNames = mCarToModelMap.get(manufacturer);
+            RadioButton button;
+
+            modelText.setAdapter(asSortedAdapter(getContext(), mModelNames));
+            List<String> mModelNamesSorted = new ArrayList<>(mModelNames);
+            Collections.sort(mModelNamesSorted);
+            for(String modelName : mModelNamesSorted){
+                button = new RadioButton(getContext());
+                button.setText(modelName);
+                modelRadioGroup.addView(button);
+                mIdToModelMap.put(button.getId(), modelName);
+            }
         } else {
             modelText.setAdapter(null);
         }
@@ -704,6 +735,40 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
                 context,
                 R.layout.activity_car_selection_newcar_fueltype_item,
                 strings);
+    }
+
+    @OnClick(R.id.button_next)
+    public void onClickNextButton(View v) {
+        switch(viewFlipper.getDisplayedChild()){
+            case 0:
+                int checkedRadioButtonId = manufacturerRadioGroup.getCheckedRadioButtonId();
+
+                if(checkedRadioButtonId == -1){
+                    new AlertDialog.Builder(getContext())
+                            .setTitle("Alert!")
+                            .setMessage("You must select one manufacturer before advance to the next step!")
+                            .setPositiveButton(android.R.string.ok, null)
+                            .setIcon(android.R.drawable.ic_dialog_alert)
+                            .show();
+                }else {
+                    viewFlipper.setDisplayedChild(1);
+                    buttonPrevious.setVisibility(View.VISIBLE);
+                    newCarFormProgress.setProgress(32);
+                    updateModelViews(mIdToManufacturerMap.get(checkedRadioButtonId));
+                }
+                break;
+        }
+    }
+
+    @OnClick(R.id.button_previous)
+    public void onClickPreviousButton(View v) {
+        switch(viewFlipper.getDisplayedChild()){
+            case 1:
+                viewFlipper.setDisplayedChild(0);
+                buttonPrevious.setVisibility(View.INVISIBLE);
+                newCarFormProgress.setProgress(16);
+                break;
+        }
     }
 
     /**

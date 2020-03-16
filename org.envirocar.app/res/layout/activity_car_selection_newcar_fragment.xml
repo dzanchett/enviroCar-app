@@ -214,10 +214,23 @@
 
         </com.google.android.material.textfield.TextInputLayout>
 
-        <include
-            layout="@layout/activity_car_selection_newcar_fragment_manufacturer"
+        <ViewFlipper xmlns:android="http://schemas.android.com/apk/res/android"
+            android:id="@+id/activity_car_selection_newcar_fragment_view_flipper"
             android:layout_width="fill_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content" >
+
+            <include
+                android:id="@+id/activity_car_selection_newcar_fragment_include"
+                layout="@layout/activity_car_selection_newcar_fragment_manufacturer"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content" />
+
+            <include
+                android:id="@+id/activity_car_selection_newcar_fragment_include2"
+                layout="@layout/activity_car_selection_newcar_fragment_model"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content" />
+        </ViewFlipper>
     </LinearLayout>
 
     <LinearLayout
@@ -226,17 +239,17 @@
         android:orientation="horizontal">
 
         <Button
-            android:id="@+id/button4"
+            android:id="@+id/button_previous"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="20dip"
             android:layout_marginRight="10dip"
             android:layout_weight="1"
-            android:text="previous"
+            android:text="&lt;"
             android:visibility="invisible" />
 
         <Button
-            android:id="@+id/button3"
+            android:id="@+id/button_next"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="10dip"
