@@ -31,6 +31,9 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.ListAdapter;
+import android.widget.ProgressBar;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -118,6 +121,11 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
     protected TextInputLayout engineLayout;
     @BindView(R.id.activity_car_selection_newcar_input_engine)
     protected AutoCompleteTextView engineText;
+
+    @BindView(R.id.activity_car_selection_newcar_fragment_progressbar)
+    protected ProgressBar newCarFormProgress;
+    @BindView(R.id.activity_car_selection_newcar_fragment_manufacturer_radio_group)
+    protected RadioGroup manufacturerRadioGroup;
 
     @Inject
     protected DAOProvider daoProvider;
@@ -532,6 +540,17 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
     private void updateManufacturerViews() {
         if (!mManufacturerNames.isEmpty()) {
             manufacturerText.setAdapter(asSortedAdapter(getContext(), mManufacturerNames));
+
+            newCarFormProgress.setProgress(16);
+
+            RadioButton button;
+            List<String> mManufacturerNamesSorted = new ArrayList<>(mManufacturerNames);
+            Collections.sort(mManufacturerNamesSorted);
+            for(String manufacturerName : mManufacturerNamesSorted) {
+                button = new RadioButton(getContext());
+                button.setText(manufacturerName);
+                manufacturerRadioGroup.addView(button);
+            }
         } else {
             manufacturerText.setAdapter(null);
         }
