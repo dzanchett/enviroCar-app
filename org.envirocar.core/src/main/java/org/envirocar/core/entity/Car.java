@@ -127,6 +127,15 @@ public interface Car extends BaseEntity<Car>, Serializable {
             }
             return null;
         }
+
+        public static Car.FuelType getFuelTybeByName(String fueltype){
+            for (Car.FuelType fuelType : Car.FuelType.values()){
+                if (fuelType.name().equals(fueltype)){
+                    return fuelType;
+                }
+            }
+            return null;
+        }
     }
 
 

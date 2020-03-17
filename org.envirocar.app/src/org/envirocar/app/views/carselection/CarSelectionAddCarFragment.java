@@ -189,32 +189,6 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
         contentView.setVisibility(View.GONE);
         downloadView.setVisibility(View.INVISIBLE);
 
-        RxToolbar.itemClicks(toolbar)
-                .filter(continueWhenFormIsCorrect())
-                .map(createCarFromForm())
-                .filter(continueWhenCarHasCorrectValues())
-                .map(checkCarAlreadyExist())
-                .subscribeWith(new DisposableObserver<Car>() {
-                    @Override
-                    public void onComplete() {
-                        LOG.info("onCompleted car");
-                    }
-
-                    @Override
-                    public void onError(Throwable e) {
-                        LOG.warn(e.getMessage(), e);
-                    }
-
-                    @Override
-                    public void onNext(Car car) {
-                        LOG.info("car added");
-                        ((CarSelectionUiListener) getActivity()).onCarAdded(car);
-                        hideKeyboard(getView());
-                        closeThisFragment();
-                    }
-                });
-
-
         fueltypeText.setAdapter(new FuelTypeAdapter(
                 getContext(),
                 R.layout.activity_car_selection_newcar_fueltype_item,
@@ -308,6 +282,7 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
     private Predicate<MenuItem> continueWhenFormIsCorrect() {
         return menuItem -> {
             // First, reset the form
+            /*
             manufacturerText.setError(null);
             modelText.setError(null);
             yearText.setError(null);
@@ -348,33 +323,36 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
             } else {
                 return true;
             }
+             */
+            return true;
         };
     }
 
-    private <T> Function<T, Car> createCarFromForm() {
-        return t -> {
+    private Car createCarFromForm() {
+        //return t -> {
             // Get the values
+            /*
             String manufacturer = manufacturerText.getText().toString();
             String model = modelText.getText().toString();
             String yearString = yearText.getText().toString();
             String engineString = engineText.getText().toString();
+            */
 
             FuelTypeAdapter fueltypeAdapter = (FuelTypeAdapter) fueltypeText.getAdapter();
-            Car.FuelType fueltype = Car.FuelType.getFuelTybeByTranslatedString(getContext(),
-                    fueltypeText.getText().toString());
+            Car.FuelType fueltype = Car.FuelType.getFuelTybeByName(selectedFuelType);
 
             // create the car
-            int year = Integer.parseInt(yearString);
+            int year = Integer.parseInt(selectedConstructionYear);
             if (fueltype != Car.FuelType.ELECTRIC) {
                 try {
-                    int engine = Integer.parseInt(engineString);
-                    return new CarImpl(manufacturer, model, fueltype, year, engine);
+                    int engine = Integer.parseInt(selectedEngineDisplacement);
+                    return new CarImpl(selectedManufacturer, selectedModel, fueltype, year, engine);
                 } catch (Exception e) {
-                    LOG.error(String.format("Unable to parse engine [%s]", engineString), e);
+                    LOG.error(String.format("Unable to parse engine [%s]", selectedEngineDisplacement), e);
                 }
             }
-            return new CarImpl(manufacturer, model, fueltype, year);
-        };
+            return new CarImpl(selectedManufacturer, selectedModel, fueltype, year);
+        //};
     }
 
     private Predicate<Car> continueWhenCarHasCorrectValues() {
@@ -403,8 +381,8 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
         };
     }
 
-    private Function<Car, Car> checkCarAlreadyExist() {
-        return car -> {
+    private Car checkCarAlreadyExist(Car car) {
+        //return car -> {
             String manu = car.getManufacturer();
             String model = car.getModel();
             String year = "" + car.getConstructionYear();
@@ -439,7 +417,7 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
                 LOG.info(String.format("Car already existed -> [%s]", selectedCar.getId()));
                 return selectedCar;
             }
-        };
+        //};
     }
 
     private void dispatchRemoteSensors() {
@@ -818,6 +796,7 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
                             .show();
                 }else {
                     viewFlipper.setDisplayedChild(1);
+                    buttonNext.setText(">");
                     buttonPrevious.setVisibility(View.VISIBLE);
                     newCarFormProgress.setProgress(32);
                     selectedManufacturer = mIdToManufacturerMap.get(checkedRadioButtonId);
@@ -877,6 +856,26 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
                     newCarFormProgress.setProgress(80);
                     selectedFuelType = mIdToFuelType.get(checkedRadioButtonId);
                     updateEngineView(new Pair<String, String>(selectedModel, selectedConstructionYear));
+                }
+                break;
+
+            case 4:
+                checkedRadioButtonId = engineDisplacementRadioGroup.getCheckedRadioButtonId();
+
+                if(checkedRadioButtonId == -1){
+                    new AlertDialog.Builder(getContext())
+                            .setTitle("Alert!")
+                            .setMessage("You must select the engine displacement before advance to the next step!")
+                            .setPositiveButton(android.R.string.ok, null)
+                            .setIcon(android.R.drawable.ic_dialog_alert)
+                            .show();
+                }else{
+                    selectedEngineDisplacement = mIdToEngineDisplacement.get(checkedRadioButtonId);
+                    Car car = createCarFromForm();
+                    //checkCarAlreadyExist(car);
+                    carManager.registerCarAtServer(car);
+                    closeThisFragment();
+                    getActivity().finish();
                 }
                 break;
         }
