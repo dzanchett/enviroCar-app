@@ -686,6 +686,7 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
 
     public void closeThisFragment() {
         // ^^
+        viewFlipper.setDisplayedChild(0);
         ECAnimationUtils.animateHideView(getContext(),
                 ((CarSelectionActivity) getActivity()).overlayView, R.anim.fade_out);
         ECAnimationUtils.animateHideView(getContext(), R.anim
@@ -872,10 +873,9 @@ public class CarSelectionAddCarFragment extends BaseInjectorFragment {
                 }else{
                     selectedEngineDisplacement = mIdToEngineDisplacement.get(checkedRadioButtonId);
                     Car car = createCarFromForm();
-                    //checkCarAlreadyExist(car);
-                    carManager.registerCarAtServer(car);
+                    checkCarAlreadyExist(car);
+                    ((CarSelectionUiListener) getActivity()).onCarAdded(car);
                     closeThisFragment();
-                    getActivity().finish();
                 }
                 break;
         }
